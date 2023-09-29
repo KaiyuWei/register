@@ -109,6 +109,30 @@ export const register = async (req, res) => {
       req.body.token,
       process.env.JWT_SECRET
     );
+
+    // hash the password
+    const hashedPassword = await authHelper.hashPassword(password);
+
+    // store the user data in the database
+    pool.getConnection(function (err, connection) {
+      // in case the connection fails
+      if (err) return res.json({ error: "DB connection failed" });
+
+      connection.query(
+        "INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)",
+        [first_name, last_name, email, hashedPassword],
+        function (error, results, fields) {
+          // When done with the connection, release it.
+          connection.release();
+
+          // Handle error after the release.
+          if (error) return res.json({ error: "user data insertion failed" });
+
+          // indicate success
+          res.json({ ok: true });
+        }
+      );
+    });
   } catch (err) {
     console.log(err);
     res.json({ error: err.message });
