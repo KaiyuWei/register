@@ -6,7 +6,7 @@
  * validate the password format. This should be done in the frontend. We add it here
  * just in case.
  */
-export const passwordFormat = (password) => {
+export const passwordFormat = (password, res) => {
   // the password is required
   if (!password) {
     return res.json({
