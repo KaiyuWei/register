@@ -6,6 +6,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import mysql from "mysql";
+import AuthRouter from "./routes/auth.js";
 
 // create the app
 const app = express();
@@ -16,12 +17,8 @@ app.use(express.json());
 app.use(morgan("dev"));
 // avoid cors error
 app.use(cors());
-
-app.get("/api", (req, res) => {
-  res.json({
-    data: "hello world",
-  });
-});
+// use the router middleware
+app.use("/api", AuthRouter);
 
 // database connection configuration
 const config = {
@@ -31,19 +28,17 @@ const config = {
   password: process.env.RDS_PASSWORD,
 };
 
-// the db instance
-// const db = mysql.getInstance(config);
-
+// the db connection instance
 const connection = mysql.createConnection(config);
 
+// connect to MYSQL server on AWS
 connection.connect(function (err) {
   if (err) {
     console.error("Database connection failed: " + err.stack);
     return;
   }
-
   console.log("DATABASE CONNECTED");
 });
 
 // listen to http requests
-app.listen(8000, () => console.log("Hello world"));
+app.listen(8000, () => console.log("SERVER READY ON PORT 8000"));
