@@ -1,6 +1,7 @@
 /**
  * helper functions in the authentication process
  */
+import bcrypt from "bcrypt";
 
 /**
  * validate the password format. This should be done in the frontend. We add it here
@@ -88,4 +89,28 @@ export const emailTemplate = (email, content, replyTo, subject) => {
       },
     },
   };
+};
+
+/**
+ * the function that returns a hashed password
+ * @param string the password to be hashed
+ * @return string tha hashed password
+ */
+export const hashPassword = (password) => {
+  return new Promise((resolve, reject) => {
+    bcrypt.genSalt(12, (err, salt) => {
+      // handle the error
+      if (err) {
+        reject(err);
+      }
+
+      // if no error, hash the password with the generated salt
+      bcrypt.hash(password, salt, (err, hash) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(hash);
+      });
+    });
+  });
 };

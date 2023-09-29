@@ -48,9 +48,14 @@ export const preRegister = async (req, res) => {
     });
 
     // the token for user identification in email activation
-    const token = jwt.sign({ email, password }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    // first_name and last_name can be undefined.
+    const token = jwt.sign(
+      { first_name, last_name, email, password },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     // prepare the AWS SES service
     const sesConfig = {
@@ -97,7 +102,18 @@ export const preRegister = async (req, res) => {
 /**
  * user register
  */
-export const register = async (req, res) => {};
+export const register = async (req, res) => {
+  try {
+    // decode the user data
+    const { first_name, last_name, email, password } = jwt.verify(
+      req.body.token,
+      process.env.JWT_SECRET
+    );
+  } catch (err) {
+    console.log(err);
+    res.json({ error: err.message });
+  }
+};
 
 /**
  * user password reset
