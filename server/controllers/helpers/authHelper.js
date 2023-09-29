@@ -62,7 +62,7 @@ export const emailTemplate = (email, content, replyTo, subject) => {
     border-radius 20px;
 `;
   return {
-    Source: config.EMAIL_FROM,
+    Source: process.env.EMAIL_FROM,
     Destination: {
       ToAddresses: [email],
     },
@@ -74,7 +74,7 @@ export const emailTemplate = (email, content, replyTo, subject) => {
           Data: `
                         <html>
                             <div style="${style}">
-                            <h1>Welcome to Realist</h1>
+                            <h1>Welcome to Brink</h1>
                             ${content}
                             <p>&copy; ${new Date().getFullYear()}</p>
                             </div>
