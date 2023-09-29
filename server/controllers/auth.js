@@ -146,37 +146,21 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // find the user by email
-    pool.getConnection(function (err, connection) {
-      // in case the connection fails
-      if (err) return res.json({ error: "DB connection failed" });
-
-      connection.query(
-        "SELECT password FROM users WHERE email = ?",
-        email,
-        function (error, results, fields) {
-          // When done with the connection, release it.
-          connection.release();
-
-          // Handle error after the release.
-          if (error) return res.json({ error: "query" });
-
-          // indicate success
-          res.json({ ok: true });
-        }
-      );
-    });
+    const results = authHelper.query(
+      "SELECT password FROM users WHERE email = ?",
+      [email]
+    );
 
     // if no existing users with the given email address
-    if (!user) throw new Error(`cannot find a user with email ${email}`);
+    if (results.length === 0)
+      throw new Error(`cannot find a user with email ${email}`);
 
     // compare the password
-    const match = await comparePassword(password, user.password);
+    const match = await bcrypt.compare(password, results[0].password);
     if (!match) {
       return res.json({ error: "wrong password" });
     }
-
-    // return the use data and updated login token
+    // return the login token
     return tokenAndUserResponse(req, res, user);
   } catch (err) {
     console.log(err);
