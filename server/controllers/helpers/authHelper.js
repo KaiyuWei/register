@@ -2,6 +2,7 @@
  * helper functions in the authentication process
  */
 import bcrypt from "bcrypt";
+import pool from "../DB/db.js";
 
 /**
  * validate the password format. This should be done in the frontend. We add it here
@@ -111,6 +112,30 @@ export const hashPassword = (password) => {
         }
         resolve(hash);
       });
+    });
+  });
+};
+
+/**
+ * make queries using the pool connection.
+ * @param string the query string
+ * @param array the parameters to be added in the query string
+ */
+export const query = (query, parameters) => {
+  // check if the email has been registerd
+  pool.getConnection(function (err, connection) {
+    // in case the connection fails
+    if (err) return res.json({ error: "DB connection failed" });
+
+    connection.query(query, parameters, function (error, results, fields) {
+      // When done with the connection, release it.
+      connection.release();
+
+      // Handle error after the release.
+      if (error) return res.json({ error: "query failed" });
+
+      // return the query results
+      return results;
     });
   });
 };
