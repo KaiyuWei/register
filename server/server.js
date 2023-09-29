@@ -42,12 +42,8 @@ connection.connect(function (err) {
     return;
   }
 
-  console.log("Connected to database.");
+  console.log("DATABASE CONNECTED");
 });
-
-// db.connect()
-//   .then(() => console.log("DB CONNECTED"))
-//   .catch((err) => console.log(err));
 
 // listen to http requests
 app.listen(8000, () => console.log("Hello world"));
