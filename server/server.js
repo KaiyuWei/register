@@ -1,6 +1,8 @@
 /**
  * This is the entry of the server when it starts.
  */
+import "dotenv/config";
+console.log(process.env);
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -20,6 +22,8 @@ app.get("/api", (req, res) => {
     data: "hello world",
   });
 });
+
+const mysql = require("mysql");
 
 // listen to http requests
 app.listen(8000, () => console.log("Hello world"));
