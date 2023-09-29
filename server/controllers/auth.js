@@ -6,6 +6,7 @@ import * as authHelper from "./helpers/authHelper.js";
 import pool from "../DB/db.js";
 import SES from "aws-sdk/clients/ses.js";
 import "dotenv/config.js";
+import jwt from "jsonwebtoken";
 
 /**
  * user pre-register
@@ -47,9 +48,9 @@ export const preRegister = async (req, res) => {
     });
 
     // the token for user identification in email activation
-    // const token = jwt.sign({ email, password }, config.JWT_SECRET, {
-    //   expiresIn: "1h",
-    // });
+    const token = jwt.sign({ email, password }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // prepare the AWS SES service
     const sesConfig = {
@@ -64,12 +65,12 @@ export const preRegister = async (req, res) => {
     // the email body content
     const content = `
         <p>Click the link below to activate your account</p>
-        <a href="${process.env.CLIENT_URL}/auth/account-activate/">Activate account</a>`;
+        <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Activate account</a>`;
 
     // send the email
     ses.sendEmail(
       // the helper function returns the first argument of the ::sendEmail() method
-      emailTemplate(
+      authHelper.emailTemplate(
         email,
         content,
         process.env.REPLY_TO,
