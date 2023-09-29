@@ -2,7 +2,7 @@
  * this file handles the database connection
  */
 import mysql from "mysql";
-import "dotenv/config";
+import "dotenv/config.js";
 
 // database connection configuration
 const config = {

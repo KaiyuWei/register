@@ -13,9 +13,12 @@ command for creating the database:
 ```
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
     email VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(60) NOT NULL,
+    login_token,
+    reset_token,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP);
 ```
