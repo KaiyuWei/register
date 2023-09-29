@@ -97,6 +97,7 @@ export const preRegister = async (req, res) => {
 /**
  * user register
  */
+export const register = async (req, res) => {};
 
 /**
  * user password reset
