@@ -110,7 +110,7 @@ export const register = async (req, res) => {
   const user_id = nanoid(8);
 
   // store the user data in the database
-  await new Promise((resolve, reject) => {
+  new Promise((resolve, reject) => {
     pool.query(
       "INSERT INTO users (first_name, last_name, email, password, user_id) VALUES (?, ?, ?, ?, ?)",
       [first_name, last_name, email, hashedPassword, user_id],
@@ -195,3 +195,25 @@ export const login = async (req, res) => {
 /**
  * user password reset
  */
+export const forgotPassword = async (req, res) => {
+  // the email for resetting the password
+  const { email } = req.body;
+
+  // search the email in the database
+  new Promise((resolve, reject) => {
+    pool.query(
+      "SELECT user_id FROM users WHERE email = ?",
+      [email],
+      (error, results) => {
+        if (error) return reject(error);
+        return resolve(results);
+      }
+    );
+  })
+    .catch((error) => {
+      res.json({ error: error.message });
+    })
+    .then((results) => {
+      console.log(results);
+    });
+};
