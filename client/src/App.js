@@ -7,7 +7,6 @@ import ResetPassword from "./pages/ResetPassword.js";
 import Dashboard from "./pages/Dashboard.js";
 import AccountActivate from "./pages/AccountActivate";
 import { AuthProvider } from "./context/auth";
-import axios from "axios";
 
 function App() {
   return (
