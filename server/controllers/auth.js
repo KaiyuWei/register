@@ -26,7 +26,7 @@ export const preRegister = async (req, res) => {
   if (!(authHelper.passwordFormat(password, res) === true)) return;
 
   // check if the email is already registered
-  await new Promise((resolve, reject) => {
+  new Promise((resolve, reject) => {
     pool.query(
       "SELECT * FROM users WHERE email = ?",
       [email],
