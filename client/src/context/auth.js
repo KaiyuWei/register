@@ -2,6 +2,11 @@
  * This file provides the context of the authentication status of a user
  */
 import { useState, createContext, useContext } from "react";
+import axios from "axios";
+import { SERVER_API } from "../config.js";
+
+// config axios
+axios.defaults.baseURL = SERVER_API;
 
 const AuthContext = createContext();
 

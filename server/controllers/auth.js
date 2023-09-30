@@ -65,7 +65,7 @@ export const preRegister = async (req, res) => {
       // the email body content
       const content = `
         <p>Click the link below to activate your account</p>
-        <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Activate account</a>`;
+        <a href="${process.env.CLIENT_URL}/account-activate/${token}">Activate account</a>`;
 
       // send the email
       ses.sendEmail(
@@ -237,7 +237,7 @@ export const forgotPassword = async (req, res) => {
       // the email body content
       const content = `
         <p>Click the link below to reset your password</p>
-        <a href="${process.env.CLIENT_URL}/auth/reset-password/${token}">Reset password</a>`;
+        <a href="${process.env.CLIENT_URL}/reset-password/${token}">Reset password</a>`;
 
       // send the email
       ses.sendEmail(

@@ -106,7 +106,6 @@ export default function Register() {
           </div>
         </div>
       </div>
-      <pre>{lastName}</pre>
     </div>
   );
 }
