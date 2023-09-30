@@ -128,7 +128,7 @@ export const register = async (req, res) => {
  * user login
  */
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, user } = req.body;
 
   // search for the email address in the database
   await new Promise((resolve, reject) => {
@@ -155,8 +155,40 @@ export const login = async (req, res) => {
         return res.json({ error: "wrong password" });
       }
 
-      // return the login token
-      // return tokenAndUserResponse(req, res, user);
+      // regenerate the session
+      req.session.regenerate(function (err) {
+        if (err) return res.json({ error: err.message });
+
+        // store the user info in the session
+        req.session.user = user._id;
+
+        // save the new session
+        req.session.save(async function (err) {
+          if (err) return next(err);
+
+          // update the user logintime
+          await new Promise((resolve, reject) => {
+            pool.query(
+              "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
+              [user._id],
+              function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+              }
+            );
+          })
+            .catch((err) => res.json({ error: err.message }))
+            .then(() => {
+              // send back the response with session_id
+              return res.json({
+                user: {
+                  _id: user._id,
+                  session_id: req.session.id,
+                },
+              });
+            });
+        });
+      });
     });
 };
 

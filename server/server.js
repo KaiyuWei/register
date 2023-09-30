@@ -9,7 +9,6 @@ import session from "express-session";
 import mySqlSession from "express-mysql-session";
 import AuthRouter from "./routes/auth.js";
 import pool from "./DB/db.js";
-import cookieParser from "cookie-parser";
 
 // create the app
 const app = express();
@@ -20,8 +19,6 @@ app.use(express.json());
 app.use(morgan("dev"));
 // avoid cors error
 app.use(cors());
-
-app.use(cookieParser());
 
 // for login session storage
 const MySqlStore = mySqlSession(session);
