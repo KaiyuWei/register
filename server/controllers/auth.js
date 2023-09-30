@@ -40,56 +40,55 @@ export const preRegister = async (req, res) => {
       return;
     })
     .then((results) => {
-      console.log(results);
+      // the email is  registered
+      if (results.length !== 0) {
+        return res.json({ error: "duplicate email address" });
+      }
 
-      // then email is not registered, continue the registration
-      if (results.length === 0) {
-        // the token for user identification in email activation
-        // first_name and last_name can be undefined.
-        const token = jwt.sign(
-          { first_name, last_name, email, password },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
+      // the email is not registered
+      // the token for user identification in email activation
+      const token = jwt.sign(
+        { first_name, last_name, email, password },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
 
-        // prepare the AWS SES service
-        const sesConfig = {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-          region: "us-east-1",
-          apiVersion: "2010-12-01",
-        };
+      // prepare the AWS SES service
+      const sesConfig = {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: "us-east-1",
+        apiVersion: "2010-12-01",
+      };
+      const ses = new SES(sesConfig);
 
-        const ses = new SES(sesConfig);
-
-        // the email body content
-        const content = `
+      // the email body content
+      const content = `
         <p>Click the link below to activate your account</p>
         <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Activate account</a>`;
 
-        // send the email
-        ses.sendEmail(
-          // the helper function returns the first argument of the ::sendEmail() method
-          authHelper.emailTemplate(
-            email,
-            content,
-            process.env.REPLY_TO,
-            "Activate your account"
-          ),
-          // error handler
-          (err, data) => {
-            if (err) {
-              console.log(err);
-              return res.json({ error: err.message });
-            } else {
-              console.log(data);
-              return res.json({ ok: true });
-            }
+      // send the email
+      ses.sendEmail(
+        // the helper function returns the first argument of the ::sendEmail() method
+        authHelper.emailTemplate(
+          email,
+          content,
+          process.env.REPLY_TO,
+          "Activate your account"
+        ),
+        // error handler
+        (err, data) => {
+          if (err) {
+            console.log(err);
+            return res.json({ error: err.message });
+          } else {
+            console.log(data);
+            return res.json({ ok: true });
           }
-        );
-      }
+        }
+      );
     });
 };
 
