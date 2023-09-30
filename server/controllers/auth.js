@@ -13,67 +13,84 @@ import { nanoid } from "nanoid";
  * user pre-register
  */
 export const preRegister = async (req, res) => {
-  try {
-    // the email and password from the request body
-    const { first_name, last_name, email, password } = req.body;
+  // the email and password from the request body
+  const { first_name, last_name, email, password } = req.body;
 
-    // validate the email and the password format
-    if (!validator.validate(email)) {
-      return res.json({ error: "A valid email is required" });
-    }
+  // validate the email and the password format
+  if (!validator.validate(email)) {
+    return res.json({ error: "A valid email is required" });
+  }
 
-    // validate the password format. if validation fails, we stop here.
-    if (!(authHelper.passwordFormat(password, res) === true)) return;
+  // validate the password format. if validation fails, we stop here.
+  if (!(authHelper.passwordFormat(password, res) === true)) return;
 
-    // the token for user identification in email activation
-    // first_name and last_name can be undefined.
-    const token = jwt.sign(
-      { first_name, last_name, email, password },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
+  // check if the email is already registered
+  await new Promise((resolve, reject) => {
+    pool.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email],
+      (error, results) => {
+        if (error) reject(error);
+        resolve(results);
       }
     );
+  })
+    .catch((error) => {
+      res.json({ error: error.message });
+      return;
+    })
+    .then((results) => {
+      console.log(results);
 
-    // prepare the AWS SES service
-    const sesConfig = {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: "us-east-1",
-      apiVersion: "2010-12-01",
-    };
+      // then email is not registered, continue the registration
+      if (results.length === 0) {
+        // the token for user identification in email activation
+        // first_name and last_name can be undefined.
+        const token = jwt.sign(
+          { first_name, last_name, email, password },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
 
-    const ses = new SES(sesConfig);
+        // prepare the AWS SES service
+        const sesConfig = {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+          region: "us-east-1",
+          apiVersion: "2010-12-01",
+        };
 
-    // the email body content
-    const content = `
+        const ses = new SES(sesConfig);
+
+        // the email body content
+        const content = `
         <p>Click the link below to activate your account</p>
         <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Activate account</a>`;
 
-    // send the email
-    ses.sendEmail(
-      // the helper function returns the first argument of the ::sendEmail() method
-      authHelper.emailTemplate(
-        email,
-        content,
-        process.env.REPLY_TO,
-        "Activate your account"
-      ),
-      // error handler
-      (err, data) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err.message });
-        } else {
-          console.log(data);
-          return res.json({ ok: true });
-        }
+        // send the email
+        ses.sendEmail(
+          // the helper function returns the first argument of the ::sendEmail() method
+          authHelper.emailTemplate(
+            email,
+            content,
+            process.env.REPLY_TO,
+            "Activate your account"
+          ),
+          // error handler
+          (err, data) => {
+            if (err) {
+              console.log(err);
+              return res.json({ error: err.message });
+            } else {
+              console.log(data);
+              return res.json({ ok: true });
+            }
+          }
+        );
       }
-    );
-  } catch (err) {
-    console.log(err);
-    return res.json({ error: err.message });
-  }
+    });
 };
 
 /**
