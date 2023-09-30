@@ -117,34 +117,6 @@ export const hashPassword = (password) => {
 };
 
 /**
- * make queries using the pool connection.
- * @param Object the request
- * @param Object the response
- * @param string the query string
- * @param array the parameters to be added in the query string
- */
-export const query = (res, req, query, parameters) => {
-  // check if the email has been registerd
-  pool.getConnection(function (err, connection) {
-    // in case the connection fails
-    if (err) return res.json({ error: "DB connection failed" });
-
-    connection.query(query, parameters, function (error, results, fields) {
-      // When done with the connection, release it.
-      connection.release();
-
-      // Handle error after the release.
-      if (error) return res.json({ error: "query failed" });
-
-      res.json({ ok: true });
-
-      // return the query results
-      return results;
-    });
-  });
-};
-
-/**
  * a helper function for updating the login token and the refresh token
  */
 const tokenAndUserResponse = (req, res, user) => {
