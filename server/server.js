@@ -40,5 +40,13 @@ app.use(session(sessionConfig));
 // use the router middleware
 app.use("/api", AuthRouter);
 
+app.use("/", (req, res) => {
+  console.log(req.session.id);
+  req.session.regenerate((err) => {
+    console.log(req.session.id);
+    res.send();
+  });
+});
+
 // listen to http requests
 app.listen(8000, () => console.log("SERVER READY ON PORT 8000"));
