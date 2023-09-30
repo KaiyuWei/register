@@ -95,43 +95,48 @@ export const preRegister = async (req, res) => {
  * user register
  */
 export const register = async (req, res) => {
-  // decode the user data
-  const { first_name, last_name, email, password } = jwt.verify(
-    req.body.token,
-    process.env.JWT_SECRET
-  );
-
-  // hash the password
-  const hashedPassword = await authHelper.hashPassword(password);
-
-  // we need to assign the user an id for identifying
-  const user_id = nanoid(8);
-
-  // store the user data in the database
-  new Promise((resolve, reject) => {
-    pool.query(
-      "INSERT INTO users (first_name, last_name, email, password, user_id) VALUES (?, ?, ?, ?, ?)",
-      [first_name, last_name, email, hashedPassword, user_id],
-      (error, results) => {
-        if (error) return reject(error);
-        return resolve(results);
-      }
+  try {
+    // decode the user data
+    const { first_name, last_name, email, password } = jwt.verify(
+      req.body.token,
+      process.env.JWT_SECRET
     );
-  })
-    .then(() => res.json({ ok: true }))
-    .catch((e) => res.json({ error: e.message }));
+
+    // hash the password
+    const hashedPassword = await authHelper.hashPassword(password);
+
+    // we need to assign the user an id for identifying
+    const user_id = nanoid(8);
+
+    // store the user data in the database
+    new Promise((resolve, reject) => {
+      pool.query(
+        "INSERT INTO users (first_name, last_name, email, password, user_id) VALUES (?, ?, ?, ?, ?)",
+        [first_name, last_name, email, hashedPassword, user_id],
+        (error, results) => {
+          if (error) return reject(error);
+          return resolve(results);
+        }
+      );
+    })
+      .then(() => res.json({ ok: true }))
+      .catch((e) => res.json({ error: e.message }));
+  } catch (error) {
+    console.log(error);
+    res.json({ error: error.message });
+  }
 };
 
 /**
  * user login
  */
 export const login = async (req, res) => {
-  const { email, password, user } = req.body;
+  const { email, password } = req.body;
 
   // search for the email address in the database
   await new Promise((resolve, reject) => {
     pool.query(
-      "SELECT password FROM users WHERE email = ?",
+      "SELECT user_id, password FROM users WHERE email = ?",
       [email],
       function (error, results, fields) {
         if (error) reject(error);
@@ -153,12 +158,15 @@ export const login = async (req, res) => {
         return res.json({ error: "wrong password" });
       }
 
+      // the userid
+      const userID = results[0].user_id;
+
       // regenerate the session
       req.session.regenerate(function (err) {
         if (err) return res.json({ error: err.message });
 
         // store the user info in the session
-        req.session.user = user._id;
+        req.session.user = userID;
 
         // save the new session
         req.session.save(async function (err) {
@@ -168,7 +176,7 @@ export const login = async (req, res) => {
           await new Promise((resolve, reject) => {
             pool.query(
               "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
-              [user._id],
+              [userID],
               function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
@@ -177,13 +185,11 @@ export const login = async (req, res) => {
           })
             .catch((err) => res.json({ error: err.message }))
             .then(() => {
-              // send back the response with session_id
-              return res.json({
-                user: {
-                  _id: user._id,
-                  session_id: req.session.id,
-                },
-              });
+              // send back cookies with the new session id
+              res
+                .cookie("connect.sid", req.session.id)
+                .cookie("user_id", userID)
+                .send("ok");
             });
         });
       });
