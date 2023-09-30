@@ -8,6 +8,7 @@ import SES from "aws-sdk/clients/ses.js";
 import "dotenv/config.js";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import bcrypt from "bcrypt";
 
 /**
  * user pre-register
@@ -127,40 +128,36 @@ export const register = async (req, res) => {
  * user login
  */
 export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
+  // search for the email address in the database
+  await new Promise((resolve, reject) => {
     pool.query(
       "SELECT password FROM users WHERE email = ?",
       [email],
       function (error, results, fields) {
-        if (error) console.log(error);
-
-        // we find a duplicate email
-        if (results[0] !== undefined) {
-          return res.json({ error: "duplicate email" });
-        }
-
-        // this email is not used, call the controller.
-        next();
+        if (error) reject(error);
+        resolve(results);
       }
     );
+  })
+    .catch((e) => {
+      return res.json({ error: e.message });
+    })
+    .then(async (results) => {
+      // if no existing users with the given email address
+      if (results.length === 0)
+        return res.json({ error: `cannot find a user with email ${email}` });
 
-    // if no existing users with the given email address
-    if (results.length === 0)
-      throw new Error(`cannot find a user with email ${email}`);
+      // compare the password
+      const match = await bcrypt.compare(password, results[0].password);
+      if (!match) {
+        return res.json({ error: "wrong password" });
+      }
 
-    // compare the password
-    const match = await bcrypt.compare(password, results[0].password);
-    if (!match) {
-      return res.json({ error: "wrong password" });
-    }
-    // return the login token
-    return tokenAndUserResponse(req, res, user);
-  } catch (err) {
-    console.log(err);
-    return res.json({ error: err.toString() });
-  }
+      // return the login token
+      // return tokenAndUserResponse(req, res, user);
+    });
 };
 
 /**
