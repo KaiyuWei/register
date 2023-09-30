@@ -59,12 +59,11 @@ export const preRegister = async (req, res) => {
         process.env.REPLY_TO,
         "Activate your account"
       ),
-
       // error handler
       (err, data) => {
         if (err) {
           console.log(err);
-          return res.json({ ok: false });
+          return res.json({ error: err.message });
         } else {
           console.log(data);
           return res.json({ ok: true });
@@ -81,29 +80,31 @@ export const preRegister = async (req, res) => {
  * user register
  */
 export const register = async (req, res) => {
-  try {
-    // decode the user data
-    const { first_name, last_name, email, password } = jwt.verify(
-      req.body.token,
-      process.env.JWT_SECRET
-    );
+  // decode the user data
+  const { first_name, last_name, email, password } = jwt.verify(
+    req.body.token,
+    process.env.JWT_SECRET
+  );
 
-    // hash the password
-    const hashedPassword = await authHelper.hashPassword(password);
+  // hash the password
+  const hashedPassword = await authHelper.hashPassword(password);
 
-    // we need to assign the user an id for identifying
-    const user_id = nanoid(8);
-    // store the user data in the database
-    const result = authHelper.query(
-      res,
-      req,
+  // we need to assign the user an id for identifying
+  const user_id = nanoid(8);
+
+  // store the user data in the database
+  await new Promise((resolve, reject) => {
+    pool.query(
       "INSERT INTO users (first_name, last_name, email, password, user_id) VALUES (?, ?, ?, ?, ?)",
-      [first_name, last_name, email, hashedPassword, user_id]
+      [first_name, last_name, email, hashedPassword, user_id],
+      (error, results) => {
+        if (error) return reject(error);
+        return resolve(results);
+      }
     );
-  } catch (err) {
-    console.log(err);
-    res.json({ error: err.message });
-  }
+  })
+    .then(() => res.json({ ok: true }))
+    .catch((e) => res.json({ error: e.message }));
 };
 
 /**
@@ -113,11 +114,20 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const results = authHelper.query(
-      res,
-      req,
+    pool.query(
       "SELECT password FROM users WHERE email = ?",
-      [email]
+      [email],
+      function (error, results, fields) {
+        if (error) console.log(error);
+
+        // we find a duplicate email
+        if (results[0] !== undefined) {
+          return res.json({ error: "duplicate email" });
+        }
+
+        // this email is not used, call the controller.
+        next();
+      }
     );
 
     // if no existing users with the given email address
