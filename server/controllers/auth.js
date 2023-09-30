@@ -7,6 +7,7 @@ import pool from "../DB/db.js";
 import SES from "aws-sdk/clients/ses.js";
 import "dotenv/config.js";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 
 /**
  * user pre-register
@@ -23,29 +24,6 @@ export const preRegister = async (req, res) => {
 
     // validate the password format. if validation fails, we stop here.
     if (!(authHelper.passwordFormat(password, res) === true)) return;
-
-    // check if the email has been registerd
-    pool.getConnection(function (err, connection) {
-      // in case the connection fails
-      if (err) return res.json({ error: "DB connection failed" });
-
-      connection.query(
-        "select * from users where email = ?",
-        [email],
-        function (error, results, fields) {
-          // When done with the connection, release it.
-          connection.release();
-
-          // Handle error after the release.
-          if (error) return res.json({ error: "query failed" });
-
-          // we find a duplicate email
-          if (results[0] !== undefined) {
-            return res.json({ error: "duplicate email" });
-          }
-        }
-      );
-    });
 
     // the token for user identification in email activation
     // first_name and last_name can be undefined.
@@ -113,26 +91,15 @@ export const register = async (req, res) => {
     // hash the password
     const hashedPassword = await authHelper.hashPassword(password);
 
+    // we need to assign the user an id for identifying
+    const user_id = nanoid(8);
     // store the user data in the database
-    pool.getConnection(function (err, connection) {
-      // in case the connection fails
-      if (err) return res.json({ error: "DB connection failed" });
-
-      connection.query(
-        "INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)",
-        [first_name, last_name, email, hashedPassword],
-        function (error, results, fields) {
-          // When done with the connection, release it.
-          connection.release();
-
-          // Handle error after the release.
-          if (error) return res.json({ error: "user data insertion failed" });
-
-          // indicate success
-          res.json({ ok: true });
-        }
-      );
-    });
+    const result = authHelper.query(
+      res,
+      req,
+      "INSERT INTO users (first_name, last_name, email, password, user_id) VALUES (?, ?, ?, ?, ?)",
+      [first_name, last_name, email, hashedPassword, user_id]
+    );
   } catch (err) {
     console.log(err);
     res.json({ error: err.message });
@@ -147,6 +114,8 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     const results = authHelper.query(
+      res,
+      req,
       "SELECT password FROM users WHERE email = ?",
       [email]
     );

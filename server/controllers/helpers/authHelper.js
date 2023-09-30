@@ -118,10 +118,12 @@ export const hashPassword = (password) => {
 
 /**
  * make queries using the pool connection.
+ * @param Object the request
+ * @param Object the response
  * @param string the query string
  * @param array the parameters to be added in the query string
  */
-export const query = (query, parameters) => {
+export const query = (res, req, query, parameters) => {
   // check if the email has been registerd
   pool.getConnection(function (err, connection) {
     // in case the connection fails
@@ -133,6 +135,8 @@ export const query = (query, parameters) => {
 
       // Handle error after the release.
       if (error) return res.json({ error: "query failed" });
+
+      res.json({ ok: true });
 
       // return the query results
       return results;
