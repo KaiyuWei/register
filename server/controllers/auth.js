@@ -189,7 +189,7 @@ export const login = async (req, res) => {
               res
                 .cookie("connect.sid", req.session.id)
                 .cookie("user_id", userID)
-                .send("ok");
+                .send({ ok: true });
             });
         });
       });
