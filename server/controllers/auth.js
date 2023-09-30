@@ -22,9 +22,6 @@ export const preRegister = async (req, res) => {
     return res.json({ error: "A valid email is required" });
   }
 
-  // validate the password format. if validation fails, we stop here.
-  if (!(authHelper.passwordFormat(password, res) === true)) return;
-
   // check if the email is already registered
   new Promise((resolve, reject) => {
     pool.query(
@@ -194,7 +191,8 @@ export const login = async (req, res) => {
 };
 
 /**
- * user password reset
+ * In case that a user forget password, this method sends an email to the user for
+ * resetting the password
  */
 export const forgotPassword = async (req, res) => {
   // the email for resetting the password
@@ -239,7 +237,7 @@ export const forgotPassword = async (req, res) => {
       // the email body content
       const content = `
         <p>Click the link below to reset your password</p>
-        <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Reset password</a>`;
+        <a href="${process.env.CLIENT_URL}/auth/reset-password/${token}">Reset password</a>`;
 
       // send the email
       ses.sendEmail(
@@ -262,5 +260,49 @@ export const forgotPassword = async (req, res) => {
           }
         }
       );
+    });
+};
+
+/**
+ * reset the user password
+ */
+export const resetPassword = (req, res) => {
+  // the token includes user id
+  const { userID } = jwt.verify(req.body.token, process.env.JWT_SECRET);
+
+  // search for the user id in the database
+  new Promise((resolve, reject) => {
+    pool.query(
+      "SELECT * FROM users WHERE user_id = ?",
+      [userID],
+      (error, results) => {
+        if (error) return reject(error);
+        return resolve(results);
+      }
+    );
+  })
+    .catch((error) => {
+      res.json({ error: error.message });
+    })
+    .then(async (results) => {
+      // if the user is not in the database
+      if (results.length === 0) res.json({ error: "no user found" });
+
+      // hash the new password
+      const hashedPassword = await authHelper.hashPassword(req.body.password);
+
+      // update the new password in the database
+      new Promise((resolve, reject) => {
+        pool.query(
+          "UPDATE users SET password = ? WHERE user_id = ?",
+          [hashedPassword, results[0].user_id],
+          (error, results) => {
+            if (error) return reject(error);
+            return resolve(results);
+          }
+        );
+      })
+        .catch((error) => res.json({ error: error.message }))
+        .then(() => res.json({ ok: true }));
     });
 };
