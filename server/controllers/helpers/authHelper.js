@@ -2,7 +2,7 @@
  * helper functions in the authentication process
  */
 import bcrypt from "bcrypt";
-import pool from "../DB/db.js";
+import pool from "../../DB/db.js";
 
 /**
  * validate the password format. This should be done in the frontend. We add it here

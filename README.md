@@ -21,18 +21,13 @@ CREATE TABLE users (
     last_login TIMESTAMP);
 ```
 
-the database structure:
+create the `sessions` table:
 
 ```
-+------------+-------------+------+-----+-------------------+-------------------+
-| Field | Type | Null | Key | Default | Extra |
-+------------+-------------+------+-----+-------------------+-------------------+
-| id | int | NO | PRI | NULL | auto_increment |
-| first_name | varchar(50) | YES | | NULL | |
-| last_name | varchar(50) | YES | | NULL | |
-| email | varchar(50) | NO | UNI | NULL | |
-| created_at | timestamp | YES | | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
-| last_login | timestamp | YES | | NULL | |
-| password | varchar(60) | NO | | NULL | |
-+------------+-------------+------+-----+-------------------+-------------------+
+CREATE TABLE sessions (
+    user_id INT NOT NULL,
+    session_id VARCHAR(32) NOT NULL,
+    expires TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 ```
