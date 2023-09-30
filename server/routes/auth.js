@@ -13,5 +13,7 @@ router.post("/pre-register", auth.preRegister);
 router.post("/register", auth.register);
 // user login
 router.post("/login", auth.login);
+// for resetting user password in case user forgets the it
+router.post("/forgot-password", auth.forgotPassword);
 
 export default router;

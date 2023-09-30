@@ -56,7 +56,13 @@ export const passwordFormat = (password, res) => {
 /**
  * a function that returns options for AWSSES sendEmail method
  */
-export const emailTemplate = (email, content, replyTo, subject) => {
+export const emailTemplate = (
+  email,
+  content,
+  replyTo,
+  subject,
+  contentTitle
+) => {
   // the style used for the email template
   const style = `
     background: #eee;
@@ -76,7 +82,7 @@ export const emailTemplate = (email, content, replyTo, subject) => {
           Data: `
                         <html>
                             <div style="${style}">
-                            <h1>Welcome to Brink</h1>
+                            <h1>${contentTitle}</h1>
                             ${content}
                             <p>&copy; ${new Date().getFullYear()}</p>
                             </div>

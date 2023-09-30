@@ -77,7 +77,8 @@ export const preRegister = async (req, res) => {
           email,
           content,
           process.env.REPLY_TO,
-          "Activate your account"
+          "Activate your account",
+          "Welcome to Brink"
         ),
         // error handler
         (err, data) => {
@@ -214,6 +215,52 @@ export const forgotPassword = async (req, res) => {
       res.json({ error: error.message });
     })
     .then((results) => {
-      console.log(results);
+      // the email is not registered
+      if (results.length === 0)
+        return res.json({ error: "the email is not registered" });
+
+      // the email is registered. Get the user id
+      const userID = results[0].user_id;
+
+      // generate a token containin the user_id
+      const token = jwt.sign({ userID }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+
+      // prepare the AWS SES service
+      const sesConfig = {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: "us-east-1",
+        apiVersion: "2010-12-01",
+      };
+      const ses = new SES(sesConfig);
+
+      // the email body content
+      const content = `
+        <p>Click the link below to reset your password</p>
+        <a href="${process.env.CLIENT_URL}/auth/account-activate/${token}">Reset password</a>`;
+
+      // send the email
+      ses.sendEmail(
+        // the helper function returns the first argument of the ::sendEmail() method
+        authHelper.emailTemplate(
+          email,
+          content,
+          process.env.REPLY_TO,
+          "Reset your password",
+          "Reset your password"
+        ),
+        // error handler
+        (err, data) => {
+          if (err) {
+            console.log(err);
+            return res.json({ error: err.message });
+          } else {
+            console.log(data);
+            return res.json({ ok: true });
+          }
+        }
+      );
     });
 };
