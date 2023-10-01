@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams, usenavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { useAuth } from "../../context/auth.js";
+import { useAuth } from "../context/auth.js";
 
 export default function AccountActivate() {
   // we need the global auth context
