@@ -34,26 +34,32 @@ export default function Navbar() {
 
   return (
     <nav className="nav d-flex justify-content-left lead">
-      {!loggedIn ? (
-        currentPage == "/login" ? (
-          <>
-            <NavLink className="nav-link" to="/Register">
-              Register
-            </NavLink>
-          </>
-        ) : (
-          <>
-            <NavLink className="nav-link" to="/login">
-              Login
-            </NavLink>
-          </>
-        )
+      {!loggedIn && currentPage !== "/login" ? (
+        <>
+          <NavLink className="nav-link" to="/login">
+            Login
+          </NavLink>
+        </>
       ) : (
+        ""
+      )}
+      {!loggedIn && currentPage !== "/register" ? (
+        <>
+          <NavLink className="nav-link" to="/register">
+            Register
+          </NavLink>
+        </>
+      ) : (
+        ""
+      )}
+      {loggedIn ? (
         <>
           <a className="nav-link pointer" onClick={logout}>
             Logout
           </a>
         </>
+      ) : (
+        ""
       )}
     </nav>
   );

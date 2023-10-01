@@ -56,8 +56,9 @@ export default function Login() {
 
   return (
     <div>
-      <h1 className="display-1 bg-primary text-light p-5">Login</h1>
-
+      <h1 className="display-1 d-flex text-secondary align-items-center justify-content-center p-5">
+        Login
+      </h1>
       <div className="container">
         <div className="row">
           <div className="col-lg-4 offset-lg-4">
