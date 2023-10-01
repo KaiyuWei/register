@@ -41,7 +41,11 @@ export default function Register() {
         // send the success notification
         toast.success("Please check your email to activate your account!");
         // navigate to login
-        navigate("/");
+        navigate("/dashboard");
+
+        /**
+         * @todo update login time here
+         */
       }
     } catch (err) {
       // loading process terminated

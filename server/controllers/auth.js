@@ -119,13 +119,28 @@ export const register = async (req, res) => {
         }
       );
     })
-      .then(() => {
+      .then(async () => {
         // the user info
         const user = { _id: user_id };
-        // send the response
-        res
-          .cookie("user_id", user_id)
-          .json({ user, session_id: req.session.id });
+
+        // update the user login time
+        await new Promise((resolve, reject) => {
+          pool.query(
+            "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
+            [user._id],
+            function (error, results, fields) {
+              if (error) reject(error);
+              resolve(results);
+            }
+          );
+        })
+          .catch((err) => res.json({ error: err.message }))
+          .then(() => {
+            // send back cookies
+            res
+              .cookie("user_id", user_id)
+              .json({ user, session_id: req.session.id });
+          });
       })
       .catch((e) => res.json({ error: e.message }));
   } catch (error) {
@@ -317,5 +332,31 @@ export const resetPassword = (req, res) => {
       })
         .catch((error) => res.json({ error: error.message }))
         .then(() => res.json({ ok: true }));
+    });
+};
+
+export const logout = (req, res) => {
+  console.log(req.session.user);
+  console.log(req.session.id);
+
+  // remove a session from the databae
+  new Promise((resolve, reject) => {
+    pool.query(
+      "DELETE FROM sessions WHERE session_id = ?",
+      [req.session.id],
+      (error, results) => {
+        if (error) reject(error);
+        resolve(results);
+      }
+    );
+  })
+    .catch((error) => {
+      res.json({ error: error.message });
+    })
+    .then(() => {
+      // destroy cookie
+      res.clearCookie("session_id");
+      res.clearCookie("user_id");
+      res.send({ true: "ok" });
     });
 };

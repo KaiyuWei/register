@@ -17,5 +17,7 @@ router.post("/login", auth.login);
 router.post("/forgot-password", auth.forgotPassword);
 // for resetting user's password
 router.post("/reset-password", auth.resetPassword);
+// for user logout
+router.post("/logout", auth.logout);
 
 export default router;
