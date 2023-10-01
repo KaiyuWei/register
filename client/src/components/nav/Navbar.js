@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/auth.js";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 /**
  *
@@ -13,15 +14,12 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   // reset the auth context to empty values
-  const logout = () => {
-    setAuth({ user: null, session_id: "" });
+  const logout = async () => {
+    // set a request to the server to remove the cookie
+    const { data } = await axios.post("/logout");
 
-    /**
-     * @todo post request to remove cookie!!
-     */
-
-    // remove the localstorage
-    localStorage.removeItem("auth");
+    // logout success, remove the auth context info
+    if (data?.true === "ok") setAuth({ user: null, session_id: "" });
 
     // redirect to the login page
     navigate("/login");

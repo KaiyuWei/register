@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 export default function Login() {
   // context
-  const { auth, setAuth } = useAuth();
+  const [auth, setAuth] = useAuth();
   // the hooks for states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +43,7 @@ export default function Login() {
         // send the success notification
         toast.success("Login successful");
         // navigate to home page
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (err) {
       // loading process terminated
