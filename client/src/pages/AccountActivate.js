@@ -11,7 +11,7 @@ import { useAuth } from "../context/auth.js";
 
 export default function AccountActivate() {
   // we need the global auth context
-  const { auth, setAuth } = useAuth();
+  const [auth, setAuth] = useAuth();
 
   // get the token from the params in the routing URL
   const { token } = useParams();
@@ -34,14 +34,12 @@ export default function AccountActivate() {
       if (data?.error) {
         toast.error(data.error);
       } else {
-        // save the data in local storage (save in json format)
-        localStorage.setItem("auth", JSON.stringify(data));
         // set the global auth data
         setAuth(data);
         // send a success toast
         toast.success("Registration success! Welcome to Realist!");
         // navigate to a new page
-        navigate("/");
+        // navigate("/dashboard");
       }
     } catch (err) {
       console.log(err);
@@ -51,7 +49,7 @@ export default function AccountActivate() {
 
   return (
     <div
-      className="display-1 d-flex justify-content-center align-items-center vh-100"
+      className="display-1 text-secondary d-flex justify-content-center align-items-center vh-100"
       style={{ marginTop: "-5%" }}
     >
       Please Wait...

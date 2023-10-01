@@ -7,6 +7,8 @@ import { SERVER_API } from "../config.js";
 
 // config axios
 axios.defaults.baseURL = SERVER_API;
+// enable cookie receiving
+axios.defaults.withCredentials = true;
 
 const AuthContext = createContext();
 

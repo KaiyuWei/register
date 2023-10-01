@@ -119,7 +119,14 @@ export const register = async (req, res) => {
         }
       );
     })
-      .then(() => res.json({ ok: true }))
+      .then(() => {
+        // the user info
+        const user = { _id: user_id };
+        // send the response
+        res
+          .cookie("user_id", user_id)
+          .json({ user, session_id: req.session.id });
+      })
       .catch((e) => res.json({ error: e.message }));
   } catch (error) {
     console.log(error);
