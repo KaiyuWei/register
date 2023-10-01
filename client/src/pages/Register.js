@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Register() {
   // the hooks for states
@@ -103,6 +104,9 @@ export default function Register() {
                 {loading ? "Waiting..." : "Register"}
               </button>
             </form>
+            <Link className="text-link" to="/login">
+              Have an account? Log in
+            </Link>
           </div>
         </div>
       </div>
