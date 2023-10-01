@@ -39,8 +39,7 @@ export default function Login() {
       } else {
         // udpate the global auth context
         setAuth(data);
-        // store in local storage
-        localStorage.setItem("auth", JSON.stringify(data));
+
         // send the success notification
         toast.success("Login successful");
         // navigate to home page

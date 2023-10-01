@@ -18,7 +18,7 @@ app.use(express.json());
 // log HTTP requests info in "dev" mode
 app.use(morgan("dev"));
 // avoid cors error
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 
 // for login session storage
 const MySqlStore = mySqlSession(session);
@@ -39,14 +39,6 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 // use the router middleware
 app.use("/api", AuthRouter);
-
-app.use("/", (req, res) => {
-  console.log(req.session.id);
-  req.session.regenerate((err) => {
-    console.log(req.session.id);
-    res.send();
-  });
-});
 
 // listen to http requests
 app.listen(8000, () => console.log("SERVER READY ON PORT 8000"));
