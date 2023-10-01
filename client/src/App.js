@@ -7,11 +7,15 @@ import ResetPassword from "./pages/ResetPassword.js";
 import Dashboard from "./pages/Dashboard.js";
 import AccountActivate from "./pages/AccountActivate";
 import { AuthProvider } from "./context/auth";
+import Navbar from "./components/nav/Navbar";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Navbar />
+        <Toaster />
         <Routes>
           <Route path="/" element={<Login />}></Route>
           <Route path="/login" element={<Login />}></Route>
