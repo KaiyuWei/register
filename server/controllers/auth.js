@@ -358,7 +358,7 @@ export const logout = (req, res) => {
     })
     .then(() => {
       // destroy cookie
-      res.clearCookie("session_id");
+      res.clearCookie("connect.sid");
       res.clearCookie("user_id");
       res.send({ true: "ok" });
     });
@@ -386,7 +386,10 @@ export const authenticate = (req, res) => {
       const currentTimestamp = Math.floor(Date.now() / 1000);
       // if the session is expired
       if (sessionExpiry < currentTimestamp)
-        res.json({ error: "session expired" });
+        res
+          .clearCookie("user_id")
+          .clearCookie("connect.sid")
+          .json({ error: "session expired" });
 
       // parse the data string to get the user id
       const data = JSON.parse(results[0].data);

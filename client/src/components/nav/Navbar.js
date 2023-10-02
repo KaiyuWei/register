@@ -17,7 +17,7 @@ export default function Navbar() {
   useEffect(() => {
     // require authentication when there is no authentication info
     if (!auth) authenticate();
-  }, [auth]);
+  }, []);
 
   // send the session cookie to the back end and get the current user
   const authenticate = async () => {
@@ -25,6 +25,7 @@ export default function Navbar() {
       // get the use data from the backend with token in the request header
       const { data } = await axios.get("/authenticate");
       // there is a valid user authentication
+
       if (data.auth) setAuth(true);
     } catch (err) {
       // something wrong
@@ -45,14 +46,12 @@ export default function Navbar() {
     navigate("/login");
   };
 
-  // a user is logged in?
-  const loggedIn = auth.user !== null && auth.session_id !== "";
-
+  // display different contents according to the location
   const currentPage = window.location.pathname;
 
   return (
     <nav className="nav d-flex justify-content-left lead">
-      {!loggedIn && currentPage !== "/login" ? (
+      {!auth && currentPage !== "/login" ? (
         <>
           <NavLink className="nav-link" to="/login">
             Login
@@ -61,7 +60,7 @@ export default function Navbar() {
       ) : (
         ""
       )}
-      {!loggedIn && currentPage !== "/register" ? (
+      {!auth && currentPage !== "/register" ? (
         <>
           <NavLink className="nav-link" to="/register">
             Register
@@ -70,7 +69,7 @@ export default function Navbar() {
       ) : (
         ""
       )}
-      {loggedIn ? (
+      {auth ? (
         <>
           <a className="nav-link pointer" onClick={logout}>
             Logout
