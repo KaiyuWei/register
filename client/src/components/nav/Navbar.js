@@ -3,6 +3,7 @@ import { useAuth } from "../../context/auth.js";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 /**
  *
@@ -36,14 +37,19 @@ export default function Navbar() {
 
   // reset the auth context to empty values
   const logout = async () => {
-    // set a request to the server to remove the cookie
-    const { data } = await axios.post("/logout");
+    try {
+      // set a request to the server to remove the cookie
+      const { data } = await axios.post("/logout");
 
-    // logout success, remove the auth context info
-    if (data?.true === "ok") setAuth(false);
+      // logout success, remove the auth context info
+      if (data?.true === "ok") setAuth(false);
 
-    // redirect to the login page
-    navigate("/login");
+      // redirect to the login page
+      navigate("/login");
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message);
+    }
   };
 
   // display different contents according to the location
