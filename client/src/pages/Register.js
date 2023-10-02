@@ -41,7 +41,7 @@ export default function Register() {
         // send the success notification
         toast.success("Please check your email to activate your account!");
         // navigate to login
-        navigate("/dashboard");
+        navigate("/login");
 
         /**
          * @todo update login time here

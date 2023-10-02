@@ -1,12 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function ForgotPassword() {
   // the state for email input value
   const [email, setEmail] = useState("");
   // the state indicating the loading status
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // submit handler
   const handleSubmit = async (e) => {
@@ -20,6 +22,7 @@ export default function ForgotPassword() {
     else {
       // indicate the user to check the email
       toast.success("Please check you email for resetting you password");
+      navigate("/login");
     }
   };
 

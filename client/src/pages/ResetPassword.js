@@ -41,7 +41,7 @@ export default function ResetPassword() {
           <div className="col-lg-4 offset-lg-4">
             <form onSubmit={handleSubmit}>
               <input
-                type="text"
+                type="password"
                 placeholder="Enter your new password"
                 className="form-control mb-4"
                 required
