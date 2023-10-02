@@ -11,6 +11,46 @@ import { nanoid } from "nanoid";
 import bcrypt from "bcrypt";
 
 /**
+ * A helper function that generate a new session for a user
+ * @param Object req request
+ * @param Object res response
+ * @param string the user's id
+ */
+const regenerateSession = async (req, res, userID) => {
+  // regenerate the session
+  req.session.regenerate(function (err) {
+    if (err) return res.json({ error: err.message });
+
+    // store the user info in the session
+    req.session.user = userID;
+
+    // save the new session
+    req.session.save(async function (err) {
+      if (err) return next(err);
+
+      // update the user login time
+      await new Promise((resolve, reject) => {
+        pool.query(
+          "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
+          [userID],
+          function (error, results, fields) {
+            if (error) reject(error);
+            resolve(results);
+          }
+        );
+      })
+        .catch((err) => res.json({ error: err.message }))
+        .then(() => {
+          // send back cookies with the new session id
+          res
+            .cookie("connect.sid", req.session.id)
+            .cookie("user_id", userID)
+            .send({ auth: true });
+        });
+    });
+  });
+};
+/**
  * user pre-register
  */
 export const preRegister = async (req, res) => {
@@ -179,38 +219,8 @@ export const login = async (req, res) => {
       // the userid
       const userID = results[0].user_id;
 
-      // regenerate the session
-      req.session.regenerate(function (err) {
-        if (err) return res.json({ error: err.message });
-
-        // store the user info in the session
-        req.session.user = userID;
-
-        // save the new session
-        req.session.save(async function (err) {
-          if (err) return next(err);
-
-          // update the user logintime
-          await new Promise((resolve, reject) => {
-            pool.query(
-              "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
-              [userID],
-              function (error, results, fields) {
-                if (error) reject(error);
-                resolve(results);
-              }
-            );
-          })
-            .catch((err) => res.json({ error: err.message }))
-            .then(() => {
-              // send back cookies with the new session id
-              res
-                .cookie("connect.sid", req.session.id)
-                .cookie("user_id", userID)
-                .send({ ok: true });
-            });
-        });
-      });
+      // regenerate the login session
+      regenerateSession(req, res, userID);
     });
 };
 
@@ -382,10 +392,10 @@ export const authenticate = (req, res) => {
       const data = JSON.parse(results[0].data);
 
       // compare the user id and return auth => true if they match
-      if (req.session.user === data.user)
+      if (req.session.user === data.user) {
         res.json({
           auth: true,
         });
-      else res.json({ auth: false });
+      } else res.json({ auth: false });
     });
 };
