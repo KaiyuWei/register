@@ -9,7 +9,7 @@ import axios from "axios";
 
 export default function PrivateRoute() {
   // context
-  const { auth, setAuth } = useAuth();
+  const [auth, setAuth] = useAuth();
 
   // the outlet enables the nested UI rendering, which requires authentication.
   return auth ? <Outlet /> : "";
