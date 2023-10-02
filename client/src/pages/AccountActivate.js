@@ -23,7 +23,7 @@ export default function AccountActivate() {
   useEffect(() => {
     // call the function that sends the token
     if (token) requestActivation();
-  }, [token]);
+  }, []);
 
   const requestActivation = async () => {
     try {
@@ -35,11 +35,11 @@ export default function AccountActivate() {
         toast.error(data.error);
       } else {
         // set the global auth data
-        setAuth(data);
+        setAuth(data.auth);
         // send a success toast
         toast.success("Registration success! Welcome to Realist!");
         // navigate to a new page
-        // navigate("/dashboard");
+        navigate("/dashboard");
       }
     } catch (err) {
       console.log(err);

@@ -120,14 +120,11 @@ export const register = async (req, res) => {
       );
     })
       .then(async () => {
-        // the user info
-        const user = { _id: user_id };
-
         // update the user login time
         await new Promise((resolve, reject) => {
           pool.query(
             "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = ?",
-            [user._id],
+            [user_id],
             function (error, results, fields) {
               if (error) reject(error);
               resolve(results);
@@ -136,10 +133,9 @@ export const register = async (req, res) => {
         })
           .catch((err) => res.json({ error: err.message }))
           .then(() => {
+            req.session.user = user_id;
             // send back cookies
-            res
-              .cookie("user_id", user_id)
-              .json({ user, session_id: req.session.id });
+            res.cookie("user_id", user_id).json({ auth: true });
           });
       })
       .catch((e) => res.json({ error: e.message }));
