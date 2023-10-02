@@ -86,7 +86,7 @@ export default function Login() {
                 {loading ? "Waiting..." : "Login"}
               </button>
             </form>
-            <Link className="text-link" to="/auth/forgot-password">
+            <Link className="text-link" to="/forgot-password">
               forgot password
             </Link>
           </div>
