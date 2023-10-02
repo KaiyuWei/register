@@ -15,8 +15,9 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    authenticate();
-  }, []);
+    // require authentication when there is no authentication info
+    if (!auth) authenticate();
+  }, [auth]);
 
   // send the session cookie to the back end and get the current user
   const authenticate = async () => {

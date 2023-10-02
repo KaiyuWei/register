@@ -48,7 +48,6 @@ export default function Login() {
     } catch (err) {
       // loading process terminated
       setLoading(false);
-
       console.log(err);
     }
   };
