@@ -41,7 +41,7 @@ export default function Navbar() {
     const { data } = await axios.post("/logout");
 
     // logout success, remove the auth context info
-    if (data?.true === "ok") setAuth({ user: null, session_id: "" });
+    if (data?.true === "ok") setAuth(false);
 
     // redirect to the login page
     navigate("/login");
