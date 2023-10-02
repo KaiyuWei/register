@@ -336,9 +336,6 @@ export const resetPassword = (req, res) => {
 };
 
 export const logout = (req, res) => {
-  console.log(req.session.user);
-  console.log(req.session.id);
-
   // remove a session from the databae
   new Promise((resolve, reject) => {
     pool.query(
@@ -358,5 +355,41 @@ export const logout = (req, res) => {
       res.clearCookie("session_id");
       res.clearCookie("user_id");
       res.send({ true: "ok" });
+    });
+};
+
+export const authenticate = (req, res) => {
+  // compare if the user session has expires
+  new Promise((resolve, reject) => {
+    // search for the login session
+    pool.query(
+      "SELECT expires, data FROM sessions WHERE session_id = ?",
+      [req.session.id],
+      (error, results) => {
+        if (error) return reject(error);
+        return resolve(results);
+      }
+    );
+  })
+    .catch((error) => {
+      res.json({ error: error.message });
+    })
+    .then((results) => {
+      // compare current time with the expiry time of the session
+      const sessionExpiry = results[0].expires;
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      // if the session is expired
+      if (sessionExpiry < currentTimestamp)
+        res.json({ error: "session expired" });
+
+      // parse the data string to get the user id
+      const data = JSON.parse(results[0].data);
+
+      // compare the user id and return auth => true if they match
+      if (req.session.user === data.user)
+        res.json({
+          auth: true,
+        });
+      else res.json({ auth: false });
     });
 };

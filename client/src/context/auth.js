@@ -13,10 +13,7 @@ axios.defaults.withCredentials = true;
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    user: null,
-    session_id: "",
-  });
+  const [auth, setAuth] = useState(false);
 
   // provide the context to all the children components
   return (

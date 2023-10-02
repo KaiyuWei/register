@@ -9,6 +9,7 @@ import AccountActivate from "./pages/AccountActivate";
 import { AuthProvider } from "./context/auth";
 import Navbar from "./components/nav/Navbar";
 import { Toaster } from "react-hot-toast";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -19,7 +20,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />}></Route>
           <Route path="/login" element={<Login />}></Route>
-          <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/register" element={<Register />}></Route>
           <Route path="/forgot-password" element={<ForgotPassword />}></Route>
           <Route
@@ -30,6 +30,9 @@ function App() {
             path="/account-activate/:token"
             element={<AccountActivate />}
           ></Route>
+          <Route path="/" element={<PrivateRoute />}>
+            <Route path="dashboard" element={<Dashboard />} />
+          </Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>
