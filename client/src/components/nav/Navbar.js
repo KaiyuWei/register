@@ -17,7 +17,6 @@ export default function Navbar() {
   useEffect(() => {
     // require authentication when there is no authentication info
     if (!auth) authenticate();
-    console.log(auth);
   }, []);
 
   // send the session cookie to the back end and get the current user
