@@ -364,6 +364,9 @@ export const logout = (req, res) => {
     });
 };
 
+/**
+ * check the user's authentication state
+ */
 export const authenticate = (req, res) => {
   // compare if the user session has expires
   new Promise((resolve, reject) => {
