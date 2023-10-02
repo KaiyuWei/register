@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/auth.js";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect } from "react";
 
 /**
  *
@@ -12,6 +13,24 @@ export default function Navbar() {
   const [auth, setAuth] = useAuth();
   // hooks
   const navigate = useNavigate();
+
+  useEffect(() => {
+    authenticate();
+  }, []);
+
+  // send the session cookie to the back end and get the current user
+  const authenticate = async () => {
+    try {
+      // get the use data from the backend with token in the request header
+      const { data } = await axios.get("/authenticate");
+      // there is a valid user authentication
+      if (data.auth) setAuth(true);
+    } catch (err) {
+      // something wrong
+      setAuth(false);
+      console.log(err);
+    }
+  };
 
   // reset the auth context to empty values
   const logout = async () => {
