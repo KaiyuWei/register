@@ -370,7 +370,7 @@ export const logout = (req, res) => {
 export const authenticate = (req, res) => {
   // if no user id, authentication fails
   if (!req.session.user) return res.json({ auth: false });
-  // compare if the user session has expires
+
   new Promise((resolve, reject) => {
     // search for the login session
     pool.query(
