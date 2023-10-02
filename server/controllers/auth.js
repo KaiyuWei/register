@@ -382,14 +382,14 @@ export const authenticate = (req, res) => {
     })
     .then((results) => {
       // compare current time with the expiry time of the session
-      const sessionExpiry = results[0].expires;
       const currentTimestamp = Math.floor(Date.now() / 1000);
-      // if the session is expired
-      if (sessionExpiry < currentTimestamp)
-        res
+      // if no such user in the database or the session is expired
+      if (results.length === 0 || results[0].expires < currentTimestamp) {
+        return res
           .clearCookie("user_id")
           .clearCookie("connect.sid")
           .json({ error: "session expired" });
+      }
 
       // parse the data string to get the user id
       const data = JSON.parse(results[0].data);
