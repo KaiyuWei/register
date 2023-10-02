@@ -1,4 +1,6 @@
 import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function ForgotPassword() {
   // the state for email input value
@@ -7,7 +9,19 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   // submit handler
-  const handleSubmit = () => {};
+  const handleSubmit = async (e) => {
+    // prevent from refreshing the page
+    e.preventDefault();
+    // send an email to the user by this API
+    const { data } = await axios.post("/forgot-password", { email });
+
+    // if any error
+    if (data?.error) toast.error(data.error);
+    else {
+      // indicate the user to check the email
+      toast.success("Please check you email for resetting you password");
+    }
+  };
 
   return (
     <div>
