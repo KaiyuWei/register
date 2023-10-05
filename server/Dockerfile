@@ -1,5 +1,8 @@
 FROM node:20.7.0-alpine
 
+# install bash
+RUN apk update && apk add bash
+
 # working directories
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 WORKDIR /home/node/app
@@ -17,4 +20,4 @@ COPY . .
 EXPOSE 8000
 
 # start the server after the container is initialized
-ENTRYPOINT ["npm", "start"]
+CMD ["npm", "start"]
