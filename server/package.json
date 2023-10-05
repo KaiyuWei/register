@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
+  "author": "Kaiyu Wei<weikaiyu2020@outlook.com>",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -12,7 +13,6 @@
     "type": "git",
     "url": "git+https://github.com/KaiyuWei/register.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/KaiyuWei/register/issues"
