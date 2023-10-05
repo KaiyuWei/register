@@ -22,4 +22,9 @@ router.post("/logout", auth.logout);
 // check if a user is logged in
 router.get("/authenticate", auth.authenticate);
 
+// this is a test api to test if the server is running
+router.get("/this-should-return-hello-world-string", (req, res) => {
+  res.send("Hello world");
+});
+
 export default router;
