@@ -10,11 +10,11 @@ WORKDIR /home/node/app
 # install dependencies
 COPY package*.json ./
 
-# install bash
-RUN apk update && apk add bash
-
 # ensure that all of the application files are owned by the non-root node user
 RUN npm install
+
+# set bash as the default shell
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # copy the project files into the working directory
 COPY . .
